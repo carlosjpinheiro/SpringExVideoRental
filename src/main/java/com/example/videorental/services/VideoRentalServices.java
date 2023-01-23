@@ -68,6 +68,10 @@ public class VideoRentalServices {
         return videoMediaRepository.findById(id);
     }
 
+    public List<VideoMediaModel> findMediasByCustomerId(UUID id){
+        return videoMediaRepository.findMediasByCustomerId(id);
+    }
+
     public void deleteMedia(VideoMediaModel videoMediaModel) {
         videoMediaRepository.delete(videoMediaModel);
     }

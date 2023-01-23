@@ -166,4 +166,10 @@ public class VideoRentalControllers {
         videoRentalServices.saveCustomer(customerModelOptional.get());
         return ResponseEntity.status(HttpStatus.OK).body(videoRentalServices.saveMedia(mediaModelOptional.get()));
     }
+
+    //metodo para buscar todas midias em posse de um cliente especifico
+    @GetMapping("/rentalview/{id}")
+    public ResponseEntity<Object> findMediasByCustomerId(@PathVariable (value = "id") UUID id) {
+        return ResponseEntity.status(HttpStatus.OK).body(videoRentalServices.findMediasByCustomerId(id));
+    }
 }
