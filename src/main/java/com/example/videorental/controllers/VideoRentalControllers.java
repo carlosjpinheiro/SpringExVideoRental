@@ -5,6 +5,7 @@ import com.example.videorental.dto.RentalDTO;
 import com.example.videorental.dto.MediaDTO;
 import com.example.videorental.models.CustomerModel;
 import com.example.videorental.models.MediaModel;
+import com.example.videorental.models.RentalModel;
 import com.example.videorental.services.CustomerServices;
 import com.example.videorental.services.MediaServices;
 import com.example.videorental.services.RentalServices;
@@ -152,8 +153,8 @@ public class VideoRentalControllers {
         mediaModelOptional.get().setCustomer(customerServices.findCustomerById(customerId).get());
 
         rentalServices.sendEmailRental(customerId, mediaId);
-
-        return ResponseEntity.status(HttpStatus.OK).body(mediaServices.saveMedia(mediaModelOptional.get()));
+        mediaServices.saveMedia(mediaModelOptional.get());
+        return ResponseEntity.status(HttpStatus.OK).body(rentalServices.saveRental(customerId, mediaId));
 
     }
 
@@ -162,13 +163,14 @@ public class VideoRentalControllers {
     public ResponseEntity<Object> removeMediaFromCustomer(@PathVariable (value = "id") UUID mediaId){
         Optional<MediaModel> mediaModelOptional = mediaServices.findMediaById(mediaId);
         if(!mediaModelOptional.isPresent()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Media ID not found!");
-
-        if(mediaServices.findMediaById(mediaId).get().getCustomer() == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Media is not in possession of any customer!");
+        Optional<RentalModel> rentalModelOptional = rentalServices.findRentalByMediaId(mediaId);
+        if(!rentalModelOptional.isPresent()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No rental was found for this media!");
 
         rentalServices.sendEmailReturn(mediaServices.findMediaById(mediaId).get().getCustomer().getId(), mediaId);
 
         mediaModelOptional.get().setCustomer(null);
-        return ResponseEntity.status(HttpStatus.OK).body(mediaServices.saveMedia(mediaModelOptional.get()));
+        mediaServices.saveMedia(mediaModelOptional.get());
+        return ResponseEntity.status(HttpStatus.OK).body(rentalServices.returnRental(mediaId));
     }
 
     //metodo para buscar todas midias em posse de um cliente especifico
