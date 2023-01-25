@@ -151,9 +151,8 @@ public class VideoRentalControllers {
 
         mediaModelOptional.get().setCustomer(customerServices.findCustomerById(customerId).get());
 
-        rentalServices.sendEmail(customerId, mediaId);
+        rentalServices.sendEmailRental(customerId, mediaId);
 
-        customerServices.saveCustomer(customerModelOptional.get());
         return ResponseEntity.status(HttpStatus.OK).body(mediaServices.saveMedia(mediaModelOptional.get()));
 
     }
@@ -166,6 +165,8 @@ public class VideoRentalControllers {
 
         if(mediaServices.findMediaById(mediaId).get().getCustomer() == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Media is not in possession of any customer!");
 
+        rentalServices.sendEmailReturn(mediaServices.findMediaById(mediaId).get().getCustomer().getId(), mediaId);
+
         mediaModelOptional.get().setCustomer(null);
         return ResponseEntity.status(HttpStatus.OK).body(mediaServices.saveMedia(mediaModelOptional.get()));
     }
@@ -175,4 +176,5 @@ public class VideoRentalControllers {
     public ResponseEntity<Object> findMediasByCustomerId(@PathVariable (value = "id") UUID id) {
         return ResponseEntity.status(HttpStatus.OK).body(mediaServices.findMediasByCustomerId(id));
     }
+
 }

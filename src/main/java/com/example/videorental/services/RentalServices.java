@@ -12,6 +12,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @Service
@@ -26,17 +28,18 @@ public class RentalServices {
     @Autowired
     MediaServices mediaServices;
 
-    public EmailModel sendEmail(UUID customerId, UUID mediaId) {
+    public EmailModel sendEmailRental(UUID customerId, UUID mediaId) {
         EmailModel emailModel = new EmailModel();
         CustomerModel customer = customerServices.findCustomerById(customerId).get();
         MediaModel media = mediaServices.findMediaById(mediaId).get();
+        var formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         try {
             SimpleMailMessage message = new SimpleMailMessage();
 
             message.setFrom("locadora@hotmail.com");
             message.setTo(customer.getEmail());
             message.setSubject("New Rental");
-            message.setText("Hello "+customer.getName()+" the movie "+media.getName()+" was rented in "+ LocalDate.now()+"\nThank you for the preference and the confidence.");
+            message.setText("Hello "+customer.getName()+" the movie "+media.getName()+" was rented in "+ LocalDateTime.now().format(formatter)+"\nThank you for the preference and the confidence.");
 
             emailSender.send(message);
 
@@ -50,5 +53,31 @@ public class RentalServices {
         }
     }
 
+
+    public EmailModel sendEmailReturn(UUID customerId, UUID mediaId) {
+        EmailModel emailModel = new EmailModel();
+        CustomerModel customer = customerServices.findCustomerById(customerId).get();
+        MediaModel media = mediaServices.findMediaById(mediaId).get();
+        var formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+
+            message.setFrom("locadora@hotmail.com");
+            message.setTo(customer.getEmail());
+            message.setSubject("Movie devolution");
+            message.setText("Hello "+customer.getName()+" the movie "+media.getName()+" was returned to our store in "+ LocalDateTime.now().format(formatter)+"\nThank you for the preference and the confidence.");
+
+            emailSender.send(message);
+
+            emailModel.setStatusEmail(StatusEmail.SENT);
+
+        } catch (MailException e) {
+            emailModel.setStatusEmail(StatusEmail.ERROR);
+        } finally {
+
+            return emailRepository.save(emailModel);
+        }
+
+    }
 
 }
