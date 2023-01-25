@@ -1,12 +1,9 @@
 package com.example.videorental.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -33,11 +30,6 @@ public class CustomerModel implements Serializable {
 
     @Column(nullable = false)
     private LocalDateTime registrationDate;
-
-    @JsonIgnore
-    @Column
-    @OneToMany(mappedBy = "customer")
-    private List<VideoMediaModel> medias = new ArrayList<>();
 
     public CustomerModel() {}
 
@@ -98,18 +90,6 @@ public class CustomerModel implements Serializable {
         this.phone = phone;
     }
 
-    public List<VideoMediaModel> getMedias() {
-        return medias;
-    }
-
-    public void setMedias(VideoMediaModel media) {
-        medias.add(media);
-    }
-
-    public void deleteMedia(VideoMediaModel media){
-        medias.remove(media);
-    }
-
     public LocalDateTime getRegistrationDate() {
         return registrationDate;
     }
@@ -122,12 +102,12 @@ public class CustomerModel implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        CustomerModel customer = (CustomerModel) o;
-        return Objects.equals(id, customer.id) && Objects.equals(name, customer.name) && Objects.equals(cpf, customer.cpf) && Objects.equals(birthDate, customer.birthDate) && Objects.equals(email, customer.email) && Objects.equals(phone, customer.phone) && Objects.equals(medias, customer.medias);
+        CustomerModel that = (CustomerModel) o;
+        return Objects.equals(id, that.id) && Objects.equals(name, that.name) && Objects.equals(cpf, that.cpf) && Objects.equals(birthDate, that.birthDate) && Objects.equals(email, that.email) && Objects.equals(phone, that.phone) && Objects.equals(registrationDate, that.registrationDate);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, cpf, birthDate, email, phone, medias);
+        return Objects.hash(id, name, cpf, birthDate, email, phone, registrationDate);
     }
 }

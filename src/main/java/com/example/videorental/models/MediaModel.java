@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "TB_VIDEO_MEDIA")
-public class VideoMediaModel implements Serializable {
+public class MediaModel implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -34,9 +34,9 @@ public class VideoMediaModel implements Serializable {
     @JoinColumn(name = "customer_id")
     private CustomerModel customer;
 
-    public VideoMediaModel() {}
+    public MediaModel() {}
 
-    public VideoMediaModel(UUID id, String name, int releasedIn, int ageRating, int movieLength, String director, CustomerModel customer) {
+    public MediaModel(UUID id, String name, int releasedIn, int ageRating, int movieLength, String director, CustomerModel customer) {
         this.id = id;
         this.name = name;
         this.releasedIn = releasedIn;
@@ -114,7 +114,7 @@ public class VideoMediaModel implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        VideoMediaModel that = (VideoMediaModel) o;
+        MediaModel that = (MediaModel) o;
         return releasedIn == that.releasedIn && ageRating == that.ageRating && movieLength == that.movieLength && Objects.equals(id, that.id) && Objects.equals(name, that.name) && Objects.equals(director, that.director) && Objects.equals(customer, that.customer);
     }
 
