@@ -57,7 +57,8 @@ public class VideoRentalControllers {
         return ResponseEntity.status(HttpStatus.OK).body(customerModelOptional.get());
     }
 
-//    @GetMapping("/customers/{cpf}")   desta forma entra em conflito com requests GET usando Id
+    //  desta forma entra em conflito com requests GET usando Id
+//    @GetMapping("/customers/{cpf}")
 //    public ResponseEntity<Object> findCustomerByCpf(@PathVariable (value = "cpf") String cpf){
 //        Optional<CustomerModel> customerModelOptional = videoRentalServices.findCustomerByCpf(cpf);
 //
@@ -135,33 +136,36 @@ public class VideoRentalControllers {
         Optional<CustomerModel> customerModelOptional = videoRentalServices.findCustomerById(customerId);
         if(!customerModelOptional.isPresent()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Customer ID not found!");
 
-        UUID idMedia = rentalDTO.getIdMedia();
+        UUID mediaId = rentalDTO.getIdMedia();
 
-        Optional<VideoMediaModel> mediaModelOptional = videoRentalServices.findMediaById(idMedia);
+        Optional<VideoMediaModel> mediaModelOptional = videoRentalServices.findMediaById(mediaId);
         if(!mediaModelOptional.isPresent()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Media ID not found!");
 
-        if(videoRentalServices.findMediaById(idMedia).get().getCustomer() != null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Media is in possession of another customer, return the media before renting!");
+        if(videoRentalServices.findMediaById(mediaId).get().getCustomer() != null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Media is in possession of another customer, return the media before renting!");
 
         mediaModelOptional.get().setCustomer(videoRentalServices.findCustomerById(customerId).get());
-        customerModelOptional.get().setMedias(videoRentalServices.findMediaById(idMedia).get());
+        customerModelOptional.get().setMedias(videoRentalServices.findMediaById(mediaId).get());
+
+        videoRentalServices.sendEmail(customerId, mediaId);
+
         videoRentalServices.saveCustomer(customerModelOptional.get());
         return ResponseEntity.status(HttpStatus.OK).body(videoRentalServices.saveMedia(mediaModelOptional.get()));
 
     }
 
-    //metodo para devolver o filme
+    //metodo para devolver o filme, pode aprimorar recebendo por parametro apenas o media id
     @PutMapping("/return/{id}")
     public ResponseEntity<Object> removeMediaFromCustomer(@PathVariable (value = "id") UUID customerId, @RequestBody RentalDTO rentalDTO){
         Optional<CustomerModel> customerModelOptional = videoRentalServices.findCustomerById(customerId);
         if(!customerModelOptional.isPresent()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Customer ID not found!");
-        UUID idMedia = rentalDTO.getIdMedia();
+        UUID mediaId = rentalDTO.getIdMedia();
 
-        Optional<VideoMediaModel> mediaModelOptional = videoRentalServices.findMediaById(idMedia);
+        Optional<VideoMediaModel> mediaModelOptional = videoRentalServices.findMediaById(mediaId);
         if(!mediaModelOptional.isPresent()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Media ID not found!");
 
-        if(videoRentalServices.findMediaById(idMedia).get().getCustomer() == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Media is not in possession of any customer!");
+        if(videoRentalServices.findMediaById(mediaId).get().getCustomer() == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Media is not in possession of any customer!");
 
-        customerModelOptional.get().deleteMedia(videoRentalServices.findMediaById(idMedia).get());
+        customerModelOptional.get().deleteMedia(videoRentalServices.findMediaById(mediaId).get());
         mediaModelOptional.get().setCustomer(null);
         videoRentalServices.saveCustomer(customerModelOptional.get());
         return ResponseEntity.status(HttpStatus.OK).body(videoRentalServices.saveMedia(mediaModelOptional.get()));
